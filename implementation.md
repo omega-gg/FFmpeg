@@ -160,6 +160,11 @@ encoders are the Chromecast side.
 | linux64 | Vulkan, OpenGL | vaapi, vulkan, nvdec | vaapi, nvenc, amf, vulkan | `FFmpeg_linux` |
 | android | OpenGL ES, Vulkan | mediacodec | mediacodec | `FFmpeg_android` |
 
+- **D3D11 and D3D12 on Windows:** both are in every build, and FFmpeg loads `d3d11.dll` and
+  `d3d12.dll` at run time. Which one Sky uses follows its RHI backend: Qt's MinGW kit only has
+  the D3D11 backend, so a MinGW Sky decodes with d3d11va; Qt's MSVC kit also has D3D12, so an
+  MSVC Sky uses d3d12va when it renders with D3D12. The same DLLs serve both, with `.lib` for
+  MSVC and `.dll.a` for MinGW.
 - **OpenGL on Windows** takes d3d11va frames through a copy, or WGL's DX interop.
 - **OpenGL on Linux** takes vaapi frames through EGL dma-buf import.
 - **Vulkan, NVIDIA and AMD** are loaded at run time (`vulkan-1.dll` / `libvulkan.so.1`, the
@@ -247,7 +252,8 @@ The wiring step in Sky (on `bunjee/dev-ffmpeg`) needs:
   -lsk-swresample`.
 - **`WFfmpegPlayer`:**
   - choose the hardware device from the RHI backend (`QSGRendererInterface::graphicsApi()`)
-    rather than one per OS (`FFMPEGPLAYER_DEVICE`);
+    rather than one per OS (`FFMPEGPLAYER_DEVICE`): d3d11va for D3D11 (the only backend of
+    Qt's MinGW kit), d3d12va for D3D12, vulkan for Vulkan, videotoolbox for Metal;
   - on Android, call `av_jni_set_java_vm` and use the `*_mediacodec` decoders;
   - give libass a fonts directory on Android (`/system/fonts`);
   - prefer the hardware H.264 encoders to OpenH264 (see the README's patent note).
