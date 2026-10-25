@@ -163,7 +163,8 @@ targetWindows()
     #       them is mixed in. Windows' own libraries stay import libraries.
     ldflags="-static"
 
-    libs="-lstdc++ -lbcrypt"
+    # NOTE: mbedTLS needs bcrypt for its random numbers and ws2_32 for inet_pton.
+    libs="-lstdc++ -lbcrypt -lws2_32"
 
     slibpref="sk-"
 
