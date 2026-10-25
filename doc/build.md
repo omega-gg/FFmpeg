@@ -9,6 +9,9 @@
 > - The configure summaries are `configure/<target>.txt`, the four non-Linux jobs are one
 >   matrix, and `buildFfmpeg` builds the dependencies itself.
 > - The smoke test is `check.py`.
+> - Releases are published by pushes to master, once per version (`FFmpeg_version`, plus
+>   `FFmpeg_build` for a rebuild), rather than by pushing a tag. A manual run with **update**
+>   replaces the archives of the current release.
 
 ## Context
 

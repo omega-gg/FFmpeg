@@ -9,6 +9,10 @@ set -e
 
 FFmpeg_version="N-127021-ge0c94b2d1c"
 
+# NOTE: Set it for a rebuild of the same FFmpeg with other options: the release is then named
+#       <FFmpeg_version>-<FFmpeg_build>.
+FFmpeg_build=""
+
 #--------------------------------------------------------------------------------------------------
 # Libraries built in
 

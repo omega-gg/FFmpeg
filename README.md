@@ -8,7 +8,8 @@ needs, for Windows, macOS, Linux, iOS and Android.
     sh build.sh <win64 | macOS | iOS | linux | android>
 
 The result goes to `deploy/`, the work files to `build/`. GitHub Actions builds the five
-platforms on every push, and a tag publishes them as a release that 3rdparty downloads:
+platforms on every push. A push to master publishes them as a release named after the version
+in `build.sh`, once per version, which 3rdparty downloads:
 
     https://github.com/omega-gg/FFmpeg/releases/download/<version>/FFmpeg-<platform>.zip
 

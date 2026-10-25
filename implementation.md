@@ -219,6 +219,10 @@ encoders are the Chromecast side.
 Each archive also has `configure/<target>.txt`: FFmpeg's configure summary, with every enabled
 library and component, to review what a build contains.
 
+They are published as a GitHub release, public and without a login, named `FFmpeg_version`
+with `-<FFmpeg_build>` when that is set (the workflow's release job; resync.md covers when a
+release is created, kept or updated). The first is `N-127021-ge0c94b2d1c`.
+
 ## Adding or removing a library
 
 Bringing back RIST or Blu-ray, for example, takes four changes in `build.sh`:
@@ -256,8 +260,9 @@ four lines in reverse. FFmpeg finds each library through its pkg-config file wit
 
 The wiring step in Sky (on `bunjee/dev-ffmpeg`) needs:
 
-- **3rdparty:** download `FFmpeg-<platform>.zip` from the release into
-  `<platform>/FFmpeg/<version>`.
+- **3rdparty:** its `generate.sh` downloads `FFmpeg-<platform>.zip` from the release into
+  `<platform>/FFmpeg/<version>`, in an FFmpeg block before VLC's (Qt 6, every platform but
+  win32 and linux32).
 - **Sky's `configure.sh` and `deploy.sh`:** copy the new names (`sk-*` instead of `av*`), plus
   the macOS dylibs, the iOS xcframeworks and the Android libraries per ABI.
 - **`SkMedia.pro`:** link `-lsk-avformat -lsk-avcodec -lsk-avfilter -lsk-avutil -lsk-swscale
