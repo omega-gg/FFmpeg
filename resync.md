@@ -11,7 +11,7 @@ show as building cleanly. Then get its version name in an FFmpeg clone:
     git -C FFmpeg describe --tags --match N <commit>
 
 That prints `N-<count>-g<hash>`. Set it as `FFmpeg_version` in `build.sh`: the archive is
-downloaded from the hash after `-g`, and the name goes into the `VERSION` file FFmpeg reports.
+downloaded from the hash after `-g`, and the name goes into the `FF_VERSION` file FFmpeg reports.
 
 ## 2. Check what changed
 
@@ -50,8 +50,8 @@ Each version is one line in the Settings of `build.sh`. Before bumping, check:
 1. Push to a branch: GitHub Actions builds the five platforms.
 2. Check each job, and each archive's `configure/*.txt`: the outside libraries and the
    platform's hardware must all be listed as enabled.
-3. Run the checks from implementation.md (load the libraries, find the key decoders, filters
-   and protocols, create the hardware devices), and update its Measured table.
+3. Run `python check.py <folder>` on each desktop archive you can (see implementation.md,
+   Debugging a build), and update the Measured table in implementation.md.
 4. Merge, then tag the commit with the `FFmpeg_version` name:
 
        git tag N-<count>-g<hash>

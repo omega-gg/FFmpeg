@@ -20,6 +20,8 @@ platforms on every push, and a tag publishes them as a release that 3rdparty dow
   for android the NDK through `sdkmanager` (`ANDROID_HOME` must be set). meson, ninja and CMake
   go to a Python venv inside `build/`.
 - **Each run starts clean:** `build/` and `deploy/` are deleted first.
+- **Checking the result:** `python check.py deploy/bin` (Windows) or `deploy/lib` (macOS,
+  Linux) loads the libraries and checks key components and the hardware devices.
 
 ## Documents
 

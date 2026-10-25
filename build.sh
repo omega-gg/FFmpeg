@@ -371,10 +371,13 @@ buildDependencies()
                         -DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_PROGRAMS=OFF"
 
     buildMeson freetype
-    buildMeson fribidi  "-Ddocs=false -Dbin=false -Dtests=false"
+
+    buildMeson fribidi "-Ddocs=false -Dbin=false -Dtests=false"
+
     # NOTE: Its utilities and GPU part default to on, whatever auto_features says.
     buildMeson harfbuzz "-Dfreetype=enabled -Dutilities=disabled -Dgpu=disabled"
-    buildMeson libass   "$libass_fonts"
+
+    buildMeson libass "$libass_fonts"
 
     buildMeson dav1d "-Denable_tools=false -Denable_tests=false -Denable_examples=false"
 
@@ -579,8 +582,9 @@ fi
 
 download ffmpeg $github/FFmpeg/FFmpeg/archive/${FFmpeg_version##*-g}.tar.gz
 
-# NOTE: FFmpeg reads its version from this file when it is not a git checkout.
-echo "$FFmpeg_version" > "$source/ffmpeg/VERSION"
+# NOTE: FFmpeg takes its version from this file first. Without it, git would give the commit of
+#       this repository, which the source sits in.
+echo "$FFmpeg_version" > "$source/ffmpeg/FF_VERSION"
 
 v=$mbedtls_version
 download mbedtls $github/Mbed-TLS/mbedtls/releases/download/mbedtls-$v/mbedtls-$v.tar.bz2

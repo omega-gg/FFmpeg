@@ -1,4 +1,5 @@
 OTHER_FILES += build.sh \
+               check.py \
                README.md \
                implementation.md \
                resync.md \

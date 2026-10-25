@@ -1,9 +1,14 @@
 # FFmpeg: our own build for Sky, a possible libVLC replacement, on all platforms
 
 > The original plan, kept as written. [implementation.md](../implementation.md) is the current
-> reference: details changed while building it (the configure summaries are
-> `configure/<target>.txt`, the four non-Linux jobs are one matrix, `buildFfmpeg` builds the
-> dependencies itself).
+> reference. What changed while building it:
+>
+> - Windows builds with llvm-mingw rather than Ubuntu's mingw-w64, which lacks the Direct3D 12
+>   video headers d3d12va needs.
+> - FFmpeg's version goes into an `FF_VERSION` file, the one FFmpeg reads first.
+> - The configure summaries are `configure/<target>.txt`, the four non-Linux jobs are one
+>   matrix, and `buildFfmpeg` builds the dependencies itself.
+> - The smoke test is `check.py`.
 
 ## Context
 

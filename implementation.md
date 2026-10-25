@@ -28,6 +28,7 @@ leaves out what playback doesn't use (capture devices, programs, docs) and anyth
 | Vulkan-Headers | 1.4.341.0 | Apache 2 | `VulkanHeaders_version` |
 | nv-codec-headers | 12.1.14.1 | MIT | `nvcodec_version` |
 | AMF headers | 1.5.3 | MIT | `AMF_version` |
+| llvm-mingw | 20260922 | Apache 2 with LLVM exception | `llvm_mingw_version` |
 
 - **FFmpeg master** is pinned to the commit Sky was developed and measured against.
 - **mbedTLS** stays on the 3.6 LTS branch: FFmpeg's TLS code uses the entropy and CTR-DRBG
@@ -36,6 +37,8 @@ leaves out what playback doesn't use (capture devices, programs, docs) and anyth
   12.1 works with drivers from 530 on. FFmpeg needs 12.1.14 at least.
 - **Vulkan-Headers:** FFmpeg needs 1.3.277 at least, and 1.4.317 for its newest Vulkan paths.
 - **AMF:** FFmpeg needs 1.5.2 at least.
+- **llvm-mingw** is the Windows toolchain. Only its C++ runtime and unwinder end up inside the
+  DLLs, linked statically.
 
 ## Libraries
 
@@ -193,8 +196,10 @@ encoders are the Chromecast side.
 - **iOS:** each library is wrapped into a framework, then into an xcframework with the
   `ios-arm64` and `ios-x86_64-simulator` slices, the names Sky's `configure.sh` already uses
   for Qt's FFmpeg.
-- **Linux:** libva and fontconfig come from the system (runtime dependencies), the rest is
-  built in.
+- **Linux:** the libraries need these from the system: libva and libva-drm (hardware
+  decoding), fontconfig (libass), zlib, and the C++ runtime (libstdc++, libgcc_s, for OpenH264
+  and SRT). All are standard on desktop distributions, and Qt 6 needs them too, apart from
+  libva. The rest is built in.
 - **Android:** x86 (emulators only) builds without assembly, which has text relocations Android
   refuses. Libraries are aligned for 16 KB pages, as Android 15 devices can use them. The C++
   runtime is linked statically.
@@ -239,6 +244,13 @@ four lines in reverse. FFmpeg finds each library through its pkg-config file wit
   the outside libraries, hardware APIs and components enabled.
 - **A dependency fails:** its meson or CMake output is just above, under `BUILDING <name>`.
   Its build folder is `build/<target>/build/<name>`.
+- **Reading CI logs:** they need a GitHub login, even on a public repository: without one, the
+  API shows the jobs and their status but not their logs. Use `gh run view --log-failed`, or the
+  API (`/repos/omega-gg/FFmpeg/actions/jobs/<id>/logs`) with a token that can read Actions.
+- **Checking a build:** `python check.py <folder>` (`deploy/bin` on Windows, `deploy/lib` on
+  macOS and Linux) loads the libraries, looks for key decoders, encoders, demuxers, filters
+  and protocols, and creates each hardware device the build has. A missing component fails it,
+  a device the machine can't create is only reported. Tested on Windows.
 
 ## Sky's side
 
@@ -260,14 +272,29 @@ The wiring step in Sky (on `bunjee/dev-ffmpeg`) needs:
 
 ## Measured
 
-Not built yet: to fill in from the first CI build.
+From the first CI builds (October 2026). Sizes are the six libraries together.
 
 | Platform | Total size | Load time |
 |---|---|---|
-| win64 | | |
-| macOS | | |
-| iOS | | |
-| linux64 | | |
-| android (arm64-v8a) | | |
+| win64 | 36 MB | 42 ms (1.15 s the first time, while Windows Defender scans the new DLLs) |
+| macOS | 57 MB, both architectures | |
+| iOS | 26 MB, device slice | |
+| linux64 | 33 MB | |
+| android | 28 MB arm64-v8a, 25 MB armeabi-v7a, 33 MB x86, 34 MB x86_64 | |
 
-For comparison, BtbN's LGPL build is 148 MB on win64 and loads in about 55 ms on the dev laptop.
+For comparison, BtbN's LGPL build is 148 MB on win64 and loads in 53 to 62 ms on the same
+laptop.
+
+**win64 smoke test** (Intel Iris Xe laptop with an NVIDIA GPU): the DLLs depend only on Windows
+and its Universal C Runtime. The h264, hevc, vp9, av1, libdav1d, aac, opus and ass decoders, the
+h264_mf, h264_nvenc, h264_amf and libopenh264 encoders, the atempo, subtitles and bwdif filters
+and the https, srt, rtmp and udp protocols are all found, and the d3d11va, d3d12va, vulkan and
+cuda devices are all created.
+
+**Checked in the archives:**
+
+- **Exports:** the Windows DLLs and the macOS libraries export FFmpeg's symbols only, none of
+  dav1d, mbedTLS, libass or the other libraries built in.
+- **macOS:** install names `@rpath/libsk-*.dylib`, minimum macOS 12.0.
+- **iOS:** each framework links the others as `@rpath/sk-*.framework`, minimum iOS 16.0.
+- **Linux:** the system libraries listed under Platforms, nothing else.
