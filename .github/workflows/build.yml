@@ -1,0 +1,82 @@
+# NOTE: Each job zips deploy/ itself, which keeps the symbolic links that an artifact upload
+#       drops. A tag publishes the five archives as a release, which 3rdparty downloads without
+#       a login (artifacts need one).
+
+name: build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+
+#--------------------------------------------------------------------------------------------------
+# Windows, macOS, iOS, Android
+#--------------------------------------------------------------------------------------------------
+# NOTE: Windows builds on Linux, with MinGW.
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - { platform: win64,   runner: ubuntu-24.04 }
+        - { platform: macOS,   runner: macos-14 }
+        - { platform: iOS,     runner: macos-14 }
+        - { platform: android, runner: ubuntu-24.04 }
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 240
+    steps:
+    - uses: actions/checkout@v5
+    - run: |
+        sh build.sh ${{ matrix.platform }}
+        cd deploy
+        zip -rqy ../FFmpeg.zip *
+    - uses: actions/upload-artifact@v4
+      with:
+        name: FFmpeg-${{ matrix.platform }}
+        path: FFmpeg.zip
+
+#--------------------------------------------------------------------------------------------------
+# Linux
+#--------------------------------------------------------------------------------------------------
+# NOTE: The glibc of Ubuntu 22.04, as Qt 6 requires. The older the glibc, the more distributions
+#       run the build.
+
+  linux64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - run: |
+        docker run -d --name ubuntu -v $PWD:/FFmpeg amd64/ubuntu:22.04 tail -f /dev/null
+        docker exec -t ubuntu bash -c "set -e;
+                                       cd /FFmpeg;
+                                       export DEBIAN_FRONTEND=noninteractive;
+                                       apt-get update;
+                                       apt-get -y install sudo zip;
+                                       sh build.sh linux;
+                                       cd deploy;
+                                       zip -rqy ../FFmpeg.zip *"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: FFmpeg-linux64
+        path: FFmpeg.zip
+
+#--------------------------------------------------------------------------------------------------
+# Release
+#--------------------------------------------------------------------------------------------------
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build, linux64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v4
+    - run: |
+        for name in FFmpeg-*; do
+            mv $name/FFmpeg.zip $name.zip
+        done
+        gh release create "$GITHUB_REF_NAME" FFmpeg-*.zip --repo "$GITHUB_REPOSITORY" \
+                          --title "$GITHUB_REF_NAME"
+      env:
+        GH_TOKEN: ${{ github.token }}
