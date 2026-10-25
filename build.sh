@@ -33,6 +33,10 @@ AMF_version="1.5.3"
 #--------------------------------------------------------------------------------------------------
 # Platforms
 
+# NOTE: llvm-mingw has the current mingw-w64 headers, Direct3D 12 video included. VLC builds with
+#       it too.
+llvm_mingw_version="20260922"
+
 macOS_version="12.0"
 iOS_version="16.0"
 
@@ -152,19 +156,18 @@ targetWindows()
 
     host="x86_64-w64-mingw32"
 
-    # NOTE: The posix variants have the C++ threads SRT needs.
-    cc="$host-gcc-posix"
-    cxx="$host-g++-posix"
+    cc="$host-clang"
+    cxx="$host-clang++"
     ar="$host-ar"
     strip="$host-strip"
     windres="$host-windres"
 
-    # NOTE: The GCC, C++ and pthread runtimes are linked in everywhere, so no DLL version of
-    #       them is mixed in. Windows' own libraries stay import libraries.
+    # NOTE: The C++ runtime and unwinder are linked in everywhere, so no DLL version of them is
+    #       mixed in. Windows' own libraries stay import libraries.
     ldflags="-static"
 
     # NOTE: mbedTLS needs bcrypt for its random numbers and ws2_32 for inet_pton.
-    libs="-lstdc++ -lbcrypt -lws2_32"
+    libs="-lc++ -lunwind -lbcrypt -lws2_32"
 
     slibpref="sk-"
 
@@ -328,7 +331,7 @@ buildZlib()
 
     cp -r "$source/zlib" "$prefix/build/zlib"
 
-    make -C "$prefix/build/zlib" -f win32/Makefile.gcc PREFIX=$host- \
+    make -C "$prefix/build/zlib" -f win32/Makefile.gcc CC=$cc AR=$ar RC=$windres \
          BINARY_PATH="$prefix/bin" INCLUDE_PATH="$prefix/include" LIBRARY_PATH="$prefix/lib" \
          install
 }
@@ -540,11 +543,7 @@ else
 
     sudo apt-get -y install build-essential pkg-config nasm curl xz-utils bzip2 python3-venv
 
-    if [ $platform = "win64" ]; then
-
-        sudo apt-get -y install mingw-w64
-
-    elif [ $platform = "linux" ]; then
+    if [ $platform = "linux" ]; then
 
         sudo apt-get -y install libva-dev libfontconfig-dev libexpat1-dev
     fi
@@ -557,7 +556,16 @@ python3 -m venv "$build/venv"
 
 export PATH="$build/venv/bin:$PATH"
 
-if [ $platform = "android" ]; then
+if [ $platform = "win64" ]; then
+
+    v=$llvm_mingw_version
+    name=llvm-mingw-$v-ucrt-ubuntu-22.04-x86_64
+
+    download llvm-mingw $github/mstorsjo/llvm-mingw/releases/download/$v/$name.tar.xz
+
+    export PATH="$source/llvm-mingw/bin:$PATH"
+
+elif [ $platform = "android" ]; then
 
     yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_version" > /dev/null
 

@@ -41,6 +41,7 @@ Each version is one line in the Settings of `build.sh`. Before bumping, check:
 - **mbedTLS:** stay on 3.6 until FFmpeg's TLS code supports 4.x (see implementation.md).
 - **nv-codec-headers:** a major version raises the minimum NVIDIA driver.
 - **NDK:** match the NDK of Sky's Qt (3rdparty's `generate.sh`, `Qt6_ndk`).
+- **llvm-mingw:** a recent release keeps the mingw-w64 headers current for new Direct3D APIs.
 - **meson options:** a new release can rename them. The build fails on an unknown option,
   which shows it.
 

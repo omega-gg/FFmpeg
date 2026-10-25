@@ -173,14 +173,16 @@ encoders are the Chromecast side.
 
 | Platform | Runner | Toolchain | Architectures | Minimum |
 |---|---|---|---|---|
-| win64 | Ubuntu 24.04, cross | mingw-w64 GCC, posix threads | x86_64 | Windows 10, as Qt 6 |
+| win64 | Ubuntu 24.04, cross | llvm-mingw `20260922` (`llvm_mingw_version`), UCRT | x86_64 | Windows 10, as Qt 6 |
 | macOS | macOS 14 | Xcode clang | arm64 + x86_64, universal | macOS 12.0 (`macOS_version`) |
 | iOS | macOS 14 | Xcode clang | arm64 device, x86_64 simulator | iOS 16.0 (`iOS_version`) |
 | linux64 | Ubuntu 22.04 docker | GCC | x86_64 | glibc 2.35, as Qt 6 |
 | android | Ubuntu 24.04 | NDK 28.2.13676358 (`NDK_version`) | armeabi-v7a, arm64-v8a, x86, x86_64 | API 28 (`android_api`) |
 
-- **win64:** the GCC runtime, libstdc++ and winpthread are linked statically, so the DLLs only
-  need Windows' own. FFmpeg writes the MSVC `.lib` import libraries itself through `dlltool`.
+- **win64:** llvm-mingw (clang, libc++), as VLC builds with. Ubuntu's own mingw-w64 is too old
+  for d3d12va: it lacks the Direct3D 12 video headers. libc++ and libunwind are linked
+  statically, so the DLLs only need Windows' own. FFmpeg writes the MSVC `.lib` import
+  libraries itself through `dlltool`.
 - **macOS:** each library is built for both architectures, then joined with `lipo`. Install
   names are `@rpath/libsk-avcodec.63.dylib`.
 - **iOS:** each library is wrapped into a framework, then into an xcframework with the
