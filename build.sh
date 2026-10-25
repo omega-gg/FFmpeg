@@ -108,6 +108,8 @@ setTarget()
     ldflags=""
     libs=""
 
+    windres=""
+
     meson_cross=""
     cmake_args=""
 
@@ -126,6 +128,7 @@ cpp = $(mesonList "$cxx")
 ar = '$ar'
 strip = '$strip'
 pkg-config = 'pkg-config'
+$([ -n "$windres" ] && echo "windres = '$windres'")
 
 [built-in options]
 c_args = $(mesonList "$cflags")
@@ -154,6 +157,7 @@ targetWindows()
     cxx="$host-g++-posix"
     ar="$host-ar"
     strip="$host-strip"
+    windres="$host-windres"
 
     ldflags="-static-libgcc -static-libstdc++"
 
@@ -166,7 +170,7 @@ targetWindows()
     crossFile windows x86_64 x86_64
 
     cmake_args="-DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=$cc -DCMAKE_CXX_COMPILER=$cxx
-                -DCMAKE_RC_COMPILER=$host-windres"
+                -DCMAKE_RC_COMPILER=$windres"
 
     FFmpeg_target="--target-os=mingw32 --arch=x86_64 --enable-cross-compile
                    --cross-prefix=$host- --cc=$cc --cxx=$cxx $FFmpeg_win64"
@@ -361,15 +365,18 @@ buildDependencies()
 
     buildMeson freetype
     buildMeson fribidi  "-Ddocs=false -Dbin=false -Dtests=false"
-    buildMeson harfbuzz "-Dfreetype=enabled"
+    # NOTE: Its utilities and GPU part default to on, whatever auto_features says.
+    buildMeson harfbuzz "-Dfreetype=enabled -Dutilities=disabled -Dgpu=disabled"
     buildMeson libass   "$libass_fonts"
 
     buildMeson dav1d "-Denable_tools=false -Denable_tests=false -Denable_examples=false"
 
     buildMeson openh264
 
+    # NOTE: Its CMakeLists asks for a CMake older than 3.5, which CMake 4 refuses by default.
     buildCmake srt "-DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DENABLE_APPS=OFF
-                    -DENABLE_UNITTESTS=OFF -DUSE_ENCLIB=mbedtls -DENABLE_STDCXX_SYNC=ON"
+                    -DENABLE_UNITTESTS=OFF -DUSE_ENCLIB=mbedtls -DENABLE_STDCXX_SYNC=ON
+                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 }
 
 # NOTE: Our libraries are named sk-avcodec and so on: SLIBPREF names them, LD_LIB links them to
