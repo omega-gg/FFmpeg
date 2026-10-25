@@ -152,16 +152,18 @@ targetWindows()
 
     host="x86_64-w64-mingw32"
 
-    # NOTE: The posix variants have the C++ threads SRT needs, their runtime is linked in.
+    # NOTE: The posix variants have the C++ threads SRT needs.
     cc="$host-gcc-posix"
     cxx="$host-g++-posix"
     ar="$host-ar"
     strip="$host-strip"
     windres="$host-windres"
 
-    ldflags="-static-libgcc -static-libstdc++"
+    # NOTE: The GCC, C++ and pthread runtimes are linked in everywhere, so no DLL version of
+    #       them is mixed in. Windows' own libraries stay import libraries.
+    ldflags="-static"
 
-    libs="-Wl,-Bstatic -lstdc++ -lwinpthread -Wl,-Bdynamic -lbcrypt"
+    libs="-lstdc++ -lbcrypt"
 
     slibpref="sk-"
 
@@ -374,9 +376,12 @@ buildDependencies()
     buildMeson openh264
 
     # NOTE: Its CMakeLists asks for a CMake older than 3.5, which CMake 4 refuses by default.
+    #       mbedTLS is given by name, so srt.pc links it after SRT rather than by file paths
+    #       that pkg-config would put first.
     buildCmake srt "-DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DENABLE_APPS=OFF
                     -DENABLE_UNITTESTS=OFF -DUSE_ENCLIB=mbedtls -DENABLE_STDCXX_SYNC=ON
-                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+                    -DSSL_INCLUDE_DIRS=$prefix/include -DSSL_LIBRARY_DIRS=$prefix/lib
+                    -DSSL_LIBRARIES=mbedtls;mbedcrypto -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 }
 
 # NOTE: Our libraries are named sk-avcodec and so on: SLIBPREF names them, LD_LIB links them to
