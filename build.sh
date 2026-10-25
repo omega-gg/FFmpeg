@@ -166,8 +166,9 @@ targetWindows()
     #       mixed in. Windows' own libraries stay import libraries.
     ldflags="-static"
 
-    # NOTE: mbedTLS needs bcrypt for its random numbers and ws2_32 for inet_pton.
-    libs="-lc++ -lunwind -lbcrypt -lws2_32"
+    # NOTE: SRT names its threads through winpthreads, mbedTLS needs bcrypt for its random
+    #       numbers and ws2_32 for inet_pton.
+    libs="-lc++ -lunwind -lpthread -lbcrypt -lws2_32"
 
     slibpref="sk-"
 
