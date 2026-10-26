@@ -5,9 +5,10 @@ set -e
 # Settings
 #--------------------------------------------------------------------------------------------------
 # NOTE: See implementation.md for what each library brings, and resync.md to move to a new
-#       FFmpeg commit.
+#       FFmpeg release.
 
-FFmpeg_version="N-127021-ge0c94b2d1c"
+# NOTE: A release of FFmpeg, from ffmpeg.org.
+FFmpeg_version="9.0.2"
 
 # NOTE: Set it for a rebuild of the same FFmpeg with other options: the release is then named
 #       <FFmpeg_version>-<FFmpeg_build>.
@@ -584,11 +585,8 @@ fi
 # Download
 #--------------------------------------------------------------------------------------------------
 
-download ffmpeg $github/FFmpeg/FFmpeg/archive/${FFmpeg_version##*-g}.tar.gz
-
-# NOTE: FFmpeg takes its version from this file first. Without it, git would give the commit of
-#       this repository, which the source sits in.
-echo "$FFmpeg_version" > "$source/ffmpeg/FF_VERSION"
+# NOTE: The release tarball has a VERSION file, so the libraries report this version.
+download ffmpeg https://ffmpeg.org/releases/ffmpeg-$FFmpeg_version.tar.xz
 
 v=$mbedtls_version
 download mbedtls $github/Mbed-TLS/mbedtls/releases/download/mbedtls-$v/mbedtls-$v.tar.bz2

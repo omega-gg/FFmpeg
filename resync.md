@@ -1,25 +1,26 @@
 # FFmpeg build: resync
 
-How to move the build to a new FFmpeg commit, and then Sky onto the new build.
+How to move the build to a new FFmpeg release, and then Sky onto the new build.
 
-## 1. Pick the commit
+## 1. Pick the release
 
-FFmpeg's master moves fast, so pick a commit that BtbN's daily builds or FFmpeg's FATE results
-show as building cleanly. Then get its version name in an FFmpeg clone:
+The build uses FFmpeg's releases only, listed on https://ffmpeg.org/download.html#releases.
 
-    git clone https://github.com/FFmpeg/FFmpeg
-    git -C FFmpeg describe --tags --match N <commit>
+- **A point release** (9.0.2 to 9.0.3) only has bug and security fixes: steps 2 and 3 are
+  usually empty, go to step 4.
+- **A new major or minor release** (9.0 to 9.1 or 10.0) has new features and API changes: do
+  every step.
 
-That prints `N-<count>-g<hash>`. Set it as `FFmpeg_version` in `build.sh`, with `FFmpeg_build`
-empty: the archive is downloaded from the hash after `-g`, and the name goes into the
-`FF_VERSION` file FFmpeg reports.
+Set it as `FFmpeg_version` in `build.sh`, with `FFmpeg_build` empty. The source is the release
+tarball from ffmpeg.org, whose `VERSION` file names the libraries' version.
 
 ## 2. Check what changed
 
-Between the old commit and the new one, in the clone:
+Between the old release and the new one, in an FFmpeg clone:
 
-    git -C FFmpeg diff <old>..<new> -- doc/APIchanges
-    git -C FFmpeg diff <old>..<new> -- configure
+    git clone https://github.com/FFmpeg/FFmpeg
+    git -C FFmpeg diff n<old>..n<new> -- doc/APIchanges
+    git -C FFmpeg diff n<old>..n<new> -- configure
 
 Look for:
 
@@ -63,7 +64,7 @@ Each version is one line in the Settings of `build.sh`. Before bumping, check:
 - **Once it is in use** (3rdparty or Sky builds point to it): publish under a new name. Set
   `FFmpeg_build` in `build.sh` to `2`, then `3` and so on, and the release becomes
   `<FFmpeg_version>-2`; 3rdparty then moves to that name. The name keeps meaning the same
-  binaries. Moving to a new FFmpeg commit, set `FFmpeg_build` back to empty.
+  binaries. Moving to a new FFmpeg release, set `FFmpeg_build` back to empty.
 - **Right after publishing**, to fix it before anyone depends on it: update it in place. Push
   the fix to master, then run the workflow by hand on master (Actions, build, Run workflow) with
   **update** checked. It rebuilds the five platforms, replaces the archives of the current

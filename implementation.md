@@ -1,7 +1,7 @@
 # FFmpeg build: implementation
 
 What the build contains, why, and which line of `build.sh` controls it. Everything here can be
-adjusted by changing that line; [resync.md](resync.md) covers moving to a new FFmpeg commit.
+adjusted by changing that line; [resync.md](resync.md) covers moving to a new FFmpeg release.
 
 ## Goal
 
@@ -14,7 +14,7 @@ leaves out what playback doesn't use (capture devices, programs, docs) and anyth
 
 | What | Version | License | `build.sh` |
 |---|---|---|---|
-| FFmpeg | `N-127021-ge0c94b2d1c` (master) | LGPL 3 | `FFmpeg_version` |
+| FFmpeg | 9.0.2 | LGPL 3 | `FFmpeg_version` |
 | zlib | 1.3.1 | zlib | `zlib_version` |
 | mbedTLS | 3.6.7 (LTS) | Apache 2 | `mbedtls_version` |
 | libxml2 | 2.14.6 | MIT | `libxml2_version` |
@@ -30,7 +30,10 @@ leaves out what playback doesn't use (capture devices, programs, docs) and anyth
 | AMF headers | 1.5.3 | MIT | `AMF_version` |
 | llvm-mingw | 20260922 | Apache 2 with LLVM exception | `llvm_mingw_version` |
 
-- **FFmpeg master** is pinned to the commit Sky was developed and measured against.
+- **FFmpeg** comes from its releases only: a release branch gets bug and security fixes, no new
+  features or API changes in between. Sky's backend was developed on a master commit from
+  before 9.0 (`N-127021-ge0c94b2d1c`), with the same library majors (avcodec 63, avformat 63,
+  avfilter 12), so the names and Sky's code stay the same.
 - **mbedTLS** stays on the 3.6 LTS branch: FFmpeg's TLS code uses the entropy and CTR-DRBG
   APIs, which 4.x removed from the public API.
 - **nv-codec-headers** stays on 12.1: version 13 requires NVIDIA drivers from 2025 on, while
@@ -221,7 +224,8 @@ library and component, to review what a build contains.
 
 They are published as a GitHub release, public and without a login, named `FFmpeg_version`
 with `-<FFmpeg_build>` when that is set (the workflow's release job; resync.md covers when a
-release is created, kept or updated). The first is `N-127021-ge0c94b2d1c`.
+release is created, kept or updated). The first, `N-127021-ge0c94b2d1c`, was built from that
+master commit, before the build moved to releases.
 
 ## Adding or removing a library
 

@@ -5,7 +5,8 @@
 >
 > - Windows builds with llvm-mingw rather than Ubuntu's mingw-w64, which lacks the Direct3D 12
 >   video headers d3d12va needs.
-> - FFmpeg's version goes into an `FF_VERSION` file, the one FFmpeg reads first.
+> - FFmpeg comes from its releases (9.0.2), not a master commit: the release tarball names its
+>   version itself, and moving to a new one is a plain version number.
 > - The configure summaries are `configure/<target>.txt`, the four non-Linux jobs are one
 >   matrix, and `buildFfmpeg` builds the dependencies itself.
 > - The smoke test is `check.py`.

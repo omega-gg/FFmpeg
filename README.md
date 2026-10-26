@@ -27,7 +27,7 @@ in `build.sh`, once per version, which 3rdparty downloads:
 ## Documents
 
 - [implementation.md](implementation.md): what the build contains and why, to adjust it.
-- [resync.md](resync.md): how to move to a new FFmpeg commit.
+- [resync.md](resync.md): how to move to a new FFmpeg release.
 - [doc/build.md](doc/build.md): the original plan.
 
 ## License
