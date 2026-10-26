@@ -1,19 +1,16 @@
 # NOTE: Each job zips deploy/ itself, which keeps the symbolic links that an artifact upload
-#       drops. A push to master publishes the five archives as a release named after the
-#       version in build.sh, once per version, which 3rdparty downloads without a login
-#       (artifacts need one). A manual run on master with 'update' replaces them.
+#       drops. A push to master publishes the five archives as the release named after the
+#       version in build.sh, which 3rdparty downloads without a login (artifacts need one). A
+#       push that only changes the docs builds nothing.
 
 name: build
 
 on:
   push:
+    paths-ignore: ["**.md", "doc/**"]
   pull_request:
+    paths-ignore: ["**.md", "doc/**"]
   workflow_dispatch:
-    inputs:
-      update:
-        description: "Replace the archives of the current release (on master)"
-        type: boolean
-        default: false
 
 jobs:
 
@@ -73,11 +70,11 @@ jobs:
 # Release
 #--------------------------------------------------------------------------------------------------
 
-# NOTE: A push publishes a version once, a release that exists already is left as it is. Only a
-#       manual run with 'update' replaces its archives, and moves its tag to that commit.
+# NOTE: A new version gets its release, one published already gets the new archives and its tag
+#       moves to that commit. FFmpeg_build in build.sh gives a rebuild a new name instead.
 
   release:
-    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || inputs.update)
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     needs: [build, linux64]
     runs-on: ubuntu-latest
     permissions:
@@ -96,16 +93,13 @@ jobs:
         for path in artifacts/FFmpeg-*; do
             mv $path/FFmpeg.zip $(basename $path).zip
         done
-        if ! gh release view "$name" > /dev/null 2>&1; then
-            gh release create "$name" FFmpeg-*.zip --target "$GITHUB_SHA" --title "$name"
-        elif [ "$UPDATE" = "true" ]; then
+        if gh release view "$name" > /dev/null 2>&1; then
             git tag -f "$name" "$GITHUB_SHA"
             git push -f origin "refs/tags/$name"
             gh release upload "$name" FFmpeg-*.zip --clobber
         else
-            echo "$name is published already"
+            gh release create "$name" FFmpeg-*.zip --target "$GITHUB_SHA" --title "$name"
         fi
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
-        UPDATE: ${{ inputs.update }}

@@ -241,8 +241,9 @@ Each archive also has `configure/<target>.txt`: FFmpeg's configure summary, with
 library and component, to review what a build contains.
 
 They are published as a GitHub release, public and without a login, named `FFmpeg_version`
-with `-<FFmpeg_build>` when that is set (the workflow's release job; resync.md covers when a
-release is created, kept or updated). The first, `N-127021-ge0c94b2d1c`, was built from that
+with `-<FFmpeg_build>` when that is set. Each push to master that changes the build creates
+that release or updates it in place (the workflow's release job; resync.md covers when to give
+a rebuild a new name instead). The first, `N-127021-ge0c94b2d1c`, was built from that
 master commit, before the build moved to releases.
 
 ## Adding or removing a library

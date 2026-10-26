@@ -58,20 +58,22 @@ Each version is one line in the Settings of `build.sh`. Before bumping, check:
 3. Run `python check.py <folder>` on each desktop archive you can (see implementation.md,
    Debugging a build), and update the Measured table in implementation.md.
 4. Merge into master. Once its five builds pass, the release job publishes
-   `FFmpeg-<platform>.zip` as a release named `FFmpeg_version`, and tags the commit with it.
-   Later pushes to master don't touch a published release.
+   `FFmpeg-<platform>.zip` as the release named `FFmpeg_version`, and tags the commit with it.
+   A push that only changes the docs (`*.md`, `doc/`) builds and publishes nothing.
 
 ### Changing a published version
 
-- **Once it is in use** (3rdparty or Sky builds point to it): publish under a new name. Set
-  `FFmpeg_build` in `build.sh` to `2`, then `3` and so on, and the release becomes
-  `<FFmpeg_version>-2`; 3rdparty then moves to that name. The name keeps meaning the same
-  binaries. Moving to a new FFmpeg release, set `FFmpeg_build` back to empty.
-- **Right after publishing**, to fix it before anyone depends on it: update it in place. Push
-  the fix to master, then run the workflow by hand on master (Actions, build, Run workflow) with
-  **update** checked. It rebuilds the five platforms, replaces the archives of the current
-  release and moves its tag to that commit. The old archives are gone afterwards, and anyone
-  who downloaded them before keeps the old content under the same name.
+Every push to master that changes the build updates the current release in place: its
+archives are replaced and its tag moves to that commit. The old archives are gone afterwards,
+and anyone who downloaded them before keeps the old content under the same name.
+
+- **While nothing depends on it:** push the fix, the release updates itself.
+- **Once it is in use** (3rdparty or Sky builds point to it): publish under a new name instead.
+  Set `FFmpeg_build` in `build.sh` to `2`, then `3` and so on, in the same push: the release
+  becomes `<FFmpeg_version>-2` and the one in use keeps its binaries; 3rdparty then moves to
+  that name. Moving to a new FFmpeg release, set `FFmpeg_build` back to empty.
+- **A rebuild without a change** (a runner fix, a failed job): run the workflow by hand on
+  master (Actions, build, Run workflow); it publishes as a push does.
 
 ## 5. Move Sky onto it
 

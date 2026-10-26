@@ -14,9 +14,9 @@
 >   mbedTLS with a CA file from Sky on Linux and Android. FFmpeg verifies certificates by
 >   default, and mbedTLS everywhere failed every https source on Windows. SRT keeps its own
 >   mbedTLS.
-> - Releases are published by pushes to master, once per version (`FFmpeg_version`, plus
->   `FFmpeg_build` for a rebuild), rather than by pushing a tag. A manual run with **update**
->   replaces the archives of the current release.
+> - Releases are published by pushes to master rather than by pushing a tag, named
+>   `FFmpeg_version` (plus `FFmpeg_build` for a new name): a push creates the release, or
+>   replaces its archives when it exists. Doc-only pushes build nothing.
 
 ## Context
 
