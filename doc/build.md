@@ -15,7 +15,8 @@
 >   default, and mbedTLS everywhere failed every https source on Windows. SRT keeps its own
 >   mbedTLS.
 > - FFmpeg gets small patches (`patches/`): SChannel's revocation check is soft, as browsers do,
->   so a revocation server behind a proxy or a VPN does not block https.
+>   so a revocation server behind a proxy or a VPN does not block https; `scale_d3d11` renders
+>   into single textures, as D3D11 refuses NV12 and P010 render target arrays.
 > - Releases are published by pushes to master rather than by pushing a tag, named
 >   `FFmpeg_version` (plus `FFmpeg_build` for a new name): a push creates the release, or
 >   replaces its archives when it exists. Doc-only pushes build nothing.

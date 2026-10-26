@@ -1,0 +1,15 @@
+--- a/libavfilter/vf_scale_d3d11.c
++++ b/libavfilter/vf_scale_d3d11.c
+@@ -373,10 +373,8 @@
+     frames_ctx->sw_format = s->format;
+     frames_ctx->width = s->width;
+     frames_ctx->height = s->height;
+-    frames_ctx->initial_pool_size = 10;
+-
+-    if (ctx->extra_hw_frames > 0)
+-        frames_ctx->initial_pool_size += ctx->extra_hw_frames;
++    ///< Render targets in NV12 or P010 can't be texture arrays: single textures, made as needed
++    frames_ctx->initial_pool_size = 0;
+ 
+     AVD3D11VAFramesContext *frames_hwctx = frames_ctx->hwctx;
+     frames_hwctx->MiscFlags = 0;
