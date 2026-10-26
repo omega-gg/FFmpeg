@@ -10,6 +10,10 @@
 > - The configure summaries are `configure/<target>.txt`, the four non-Linux jobs are one
 >   matrix, and `buildFfmpeg` builds the dependencies itself.
 > - The smoke test is `check.py`.
+> - https uses the system TLS where there is one: SChannel on Windows, SecureTransport on Apple,
+>   mbedTLS with a CA file from Sky on Linux and Android. FFmpeg verifies certificates by
+>   default, and mbedTLS everywhere failed every https source on Windows. SRT keeps its own
+>   mbedTLS.
 > - Releases are published by pushes to master, once per version (`FFmpeg_version`, plus
 >   `FFmpeg_build` for a rebuild), rather than by pushing a tag. A manual run with **update**
 >   replaces the archives of the current release.

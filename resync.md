@@ -40,7 +40,9 @@ Look for:
 
 Each version is one line in the Settings of `build.sh`. Before bumping, check:
 
-- **mbedTLS:** stay on 3.6 until FFmpeg's TLS code supports 4.x (see implementation.md).
+- **mbedTLS:** stay on 3.6 until FFmpeg's TLS code supports 4.x (see implementation.md). It is
+  https on Linux and Android and SRT's encryption everywhere; check that Windows and Apple's
+  configure summaries still list `schannel` and `securetransport`.
 - **nv-codec-headers:** a major version raises the minimum NVIDIA driver.
 - **NDK:** match the NDK of Sky's Qt (3rdparty's `generate.sh`, `Qt6_ndk`).
 - **llvm-mingw:** a recent release keeps the mingw-w64 headers current for new Direct3D APIs.

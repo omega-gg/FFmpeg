@@ -54,18 +54,21 @@ android_api="28"
 # NOTE: Every native component is in, the outside libraries come only from this list.
 FFmpeg_flags="--disable-autodetect --disable-programs --disable-doc --disable-avdevice
               --disable-debug --enable-shared --disable-static --enable-version3 --enable-pic
-              --enable-network --enable-zlib --enable-mbedtls --enable-libxml2 --enable-libass
-              --enable-libdav1d --enable-libopenh264 --enable-libsrt"
+              --enable-network --enable-zlib --enable-libxml2 --enable-libass --enable-libdav1d
+              --enable-libopenh264 --enable-libsrt"
 
-FFmpeg_win64="--enable-w32threads --enable-d3d11va --enable-d3d12va --enable-mediafoundation
-              --enable-vulkan --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-amf"
-
-FFmpeg_apple="--enable-pthreads --enable-videotoolbox"
-
-FFmpeg_linux="--enable-pthreads --enable-vaapi --enable-vulkan --enable-ffnvcodec --enable-nvdec
+# NOTE: The TLS of https is the system's where it has one, with its certificates: SChannel on
+#       Windows, SecureTransport on Apple. SRT has its own mbedTLS everywhere.
+FFmpeg_win64="--enable-w32threads --enable-schannel --enable-d3d11va --enable-d3d12va
+              --enable-mediafoundation --enable-vulkan --enable-ffnvcodec --enable-nvdec
               --enable-nvenc --enable-amf"
 
-FFmpeg_android="--enable-pthreads --enable-jni --enable-mediacodec"
+FFmpeg_apple="--enable-pthreads --enable-securetransport --enable-videotoolbox"
+
+FFmpeg_linux="--enable-pthreads --enable-mbedtls --enable-vaapi --enable-vulkan
+              --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-amf"
+
+FFmpeg_android="--enable-pthreads --enable-mbedtls --enable-jni --enable-mediacodec"
 
 #--------------------------------------------------------------------------------------------------
 # Functions

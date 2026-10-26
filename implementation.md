@@ -102,7 +102,7 @@ extra is deployed. Their symbols stay hidden (FFmpeg only exports its own).
 | Library | Brings | FFmpeg flag | Build | Platforms |
 |---|---|---|---|---|
 | zlib | Matroska compression, PNG, HTTP gzip | `--enable-zlib` | `buildZlib` | win64; the system's elsewhere |
-| mbedTLS | https and SRT encryption | `--enable-mbedtls` | CMake | all |
+| mbedTLS | SRT encryption everywhere, https on Linux and Android | `--enable-mbedtls` (Linux, Android) | CMake | all |
 | libxml2 | DASH manifests | `--enable-libxml2` | CMake | all |
 | FreeType, FriBidi, HarfBuzz | font rendering and text shaping for libass | through libass | meson | all |
 | libass | styled ASS/SSA subtitles, as VLC | `--enable-libass` | meson | all |
@@ -116,8 +116,8 @@ extra is deployed. Their symbols stay hidden (FFmpeg only exports its own).
 What turning each off loses:
 
 - **zlib:** zlib-compressed Matroska tracks (mostly subtitles), PNG frames, gzip HTTP.
-- **mbedTLS:** every https source. There is one TLS on every platform, rather than SChannel or
-  SecureTransport, because SRT needs mbedTLS anyway.
+- **mbedTLS:** SRT encryption, and https on Linux and Android. Windows and Apple use their
+  system TLS for https (below).
 - **libxml2:** DASH. HLS doesn't need it.
 - **libass and its three dependencies:** styled ASS/SSA subtitles. Plain subtitles still decode
   to text for Sky to draw.
@@ -137,6 +137,24 @@ What turning each off loses:
 - **SRT:** mbedTLS for encryption, C++11 threads (`ENABLE_STDCXX_SYNC`) so it needs no pthreads
   library on Windows.
 - **libxml2:** no iconv, ICU, zlib, LZMA, Python, programs or tests.
+
+## TLS
+
+FFmpeg verifies certificates by default (`tls_verify`), so its TLS needs the system's trusted
+certificates. Each platform takes the TLS that has them (`FFmpeg_<platform>` in `build.sh`):
+
+| Platform | https | Certificates |
+|---|---|---|
+| win64 | SChannel (`--enable-schannel`) | Windows' certificate store, corporate CAs included |
+| macOS, iOS | SecureTransport (`--enable-securetransport`) | the system keychain |
+| linux64, android | mbedTLS (`--enable-mbedtls`) | a CA file Sky passes (`ca_file`): the distribution's bundle on Linux, the system certificates on Android |
+
+FFmpeg links one TLS only (SChannel and SecureTransport conflict with mbedTLS in its
+`configure`). SRT links its own mbedTLS on every platform, through `srt.pc`, independently of
+FFmpeg's TLS.
+
+The first builds used mbedTLS everywhere: on Windows every https source then failed, as mbedTLS
+can't read Windows' certificate store.
 
 ## Left out on purpose
 
