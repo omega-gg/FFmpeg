@@ -591,6 +591,14 @@ fi
 # NOTE: The release tarball has a VERSION file, so the libraries report this version.
 download ffmpeg https://ffmpeg.org/releases/ffmpeg-$FFmpeg_version.tar.xz
 
+# NOTE: Our changes to FFmpeg, each one explained in implementation.md.
+for path in "$root"/patches/*.patch; do
+
+    echo "APPLYING $(basename "$path")"
+
+    patch -p1 -d "$source/ffmpeg" < "$path"
+done
+
 v=$mbedtls_version
 download mbedtls $github/Mbed-TLS/mbedtls/releases/download/mbedtls-$v/mbedtls-$v.tar.bz2
 

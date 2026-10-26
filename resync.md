@@ -33,6 +33,8 @@ Look for:
   lists of `build.sh`.
 - **New minimum versions** of outside libraries (`check_pkg_config` / `require_pkg_config`
   lines: Vulkan headers, ffnvcodec, AMF, dav1d, libass, SRT, mbedTLS).
+- **Our patches** (`patches/*.patch`, implementation.md): each must still apply to the new
+  release, or go when FFmpeg has the change. `patch -p1 --dry-run` in the new source tells.
 - **New hardware APIs** worth enabling (in `HWACCEL_AUTODETECT_LIBRARY_LIST`): autodetection
   is off, so a new API needs its `--enable-` flag.
 

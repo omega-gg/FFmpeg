@@ -156,6 +156,26 @@ FFmpeg's TLS.
 The first builds used mbedTLS everywhere: on Windows every https source then failed, as mbedTLS
 can't read Windows' certificate store.
 
+**Revocation on Windows:** with verification on, FFmpeg's SChannel code makes the revocation
+check of the certificate mandatory. Where the revocation servers can't be reached (a corporate
+proxy, a VPN), every https source fails with `0x80092012`, while browsers open them. Our
+`patches/tls-schannel-revocation.patch` makes that check soft, as Chrome, Edge and curl's
+`--ssl-revoke-best-effort` do: the certificate chain and the host name are still verified, a
+certificate known as revoked is still refused, and only an unreachable revocation server no
+longer blocks the source.
+
+## Patches
+
+`build.sh` applies every `patches/*.patch` to FFmpeg's source after the download, with
+`patch -p1`. Each one is small and explained here:
+
+| Patch | Why |
+|---|---|
+| `tls-schannel-revocation.patch` | Soft revocation check with SChannel, see TLS above |
+
+A patch that no longer applies stops the build (see resync.md). One FFmpeg takes upstream
+makes it go.
+
 ## Left out on purpose
 
 - **SMB** (`smb://`): libsmbclient is GPL 3.

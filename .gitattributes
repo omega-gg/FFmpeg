@@ -1,3 +1,6 @@
 # NOTE: The scripts run on Linux and macOS runners.
 *.sh  text eol=lf
 *.yml text eol=lf
+
+# NOTE: The patches apply to FFmpeg's sources, which use LF.
+*.patch text eol=lf

@@ -14,6 +14,8 @@
 >   mbedTLS with a CA file from Sky on Linux and Android. FFmpeg verifies certificates by
 >   default, and mbedTLS everywhere failed every https source on Windows. SRT keeps its own
 >   mbedTLS.
+> - FFmpeg gets small patches (`patches/`): SChannel's revocation check is soft, as browsers do,
+>   so a revocation server behind a proxy or a VPN does not block https.
 > - Releases are published by pushes to master rather than by pushing a tag, named
 >   `FFmpeg_version` (plus `FFmpeg_build` for a new name): a push creates the release, or
 >   replaces its archives when it exists. Doc-only pushes build nothing.
