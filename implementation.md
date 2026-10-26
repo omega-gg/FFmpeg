@@ -173,6 +173,7 @@ longer blocks the source.
 |---|---|
 | `tls-schannel-revocation.patch` | Soft revocation check with SChannel, see TLS above |
 | `scale-d3d11-single-textures.patch` | `scale_d3d11` asks for its output as an array of 10 NV12 or P010 textures to render into. D3D11 allows such arrays only for decoding (`E_INVALIDARG` on NVIDIA and Intel), so the filter never ran. Its pool now makes single textures as needed. Sky uses it to bring 10-bit frames to 8 bits on the GPU before their copy to memory |
+| `scale-d3d11-visible-area.patch` | `scale_d3d11` took its input size from the decoder's texture, which is taller than the frame (4K is decoded into 2176 rows), and set no source rectangle: the picture was squeezed and its padding showed as black rows at the bottom. It now blits the visible area only |
 
 A patch that no longer applies stops the build (see resync.md). One FFmpeg takes upstream
 makes it go.

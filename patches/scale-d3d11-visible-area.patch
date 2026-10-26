@@ -1,0 +1,14 @@
+--- a/libavfilter/vf_scale_d3d11.c
++++ b/libavfilter/vf_scale_d3d11.c
+@@ -266,6 +266,11 @@
+         goto fail;
+     }
+ 
++    ///< Only the visible area: a decoded texture is taller than its frame (aligned to 16 or more)
++    RECT source = { 0, 0, in->width, in->height };
++    videoContext->lpVtbl->VideoProcessorSetStreamSourceRect(videoContext, s->processor, 0, TRUE,
++                                                            &source);
++
+     ///< Process the frame
+     hr = videoContext->lpVtbl->VideoProcessorBlt(videoContext, s->processor, s->outputView, 0, 1, &stream);
+     if (FAILED(hr)) {
