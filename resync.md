@@ -34,9 +34,26 @@ Look for:
 - **New minimum versions** of outside libraries (`check_pkg_config` / `require_pkg_config`
   lines: Vulkan headers, ffnvcodec, AMF, dav1d, libass, SRT, mbedTLS).
 - **Our patches** (`patches/*.patch`, implementation.md): each must still apply to the new
-  release, or go when FFmpeg has the change. `patch -p1 --dry-run` in the new source tells.
+  release, or go when FFmpeg has the change. `patch -p1 --dry-run` in the new source tells;
+  see below to check each one.
 - **New hardware APIs** worth enabling (in `HWACCEL_AUTODETECT_LIBRARY_LIST`): autodetection
   is off, so a new API needs its `--enable-` flag.
+
+### Checking our patches
+
+`patch -p1 --dry-run` only tells whether a patch applies. When one doesn't, or when FFmpeg
+reworked the code around it, check whether the bug is still there before porting the patch:
+
+| Patch | Code to look at | What shows the bug |
+|---|---|---|
+| `tls-schannel-revocation.patch` | `libavformat/tls_schannel.c`, the credential flags around `SCH_CRED_REVOCATION_CHECK_CHAIN` | an https source with the revocation servers out of reach (a VPN, a corporate proxy) fails with `0x80092012` |
+| `scale-d3d11-single-textures.patch` | `libavfilter/vf_scale_d3d11.c`, its output pool (`initial_pool_size`, textures in an array) | a 10-bit video decoded with d3d11va: Sky logs `Cannot bring the frames to 8 bits` |
+| `scale-d3d11-visible-area.patch` | the same file, the input size and `VideoProcessorSetStreamSourceRect` | a paused 4K 10-bit frame on d3d11va is squeezed, with black rows at the bottom |
+| `scale-d3d12-color-space.patch` | `libavfilter/vf_scale_d3d12.c`, the color spaces of the processor's input and output | a 10-bit HDR video in an MSVC Sky with `QSG_RHI_BACKEND=d3d12` shows green frames |
+
+A patch FFmpeg made unnecessary goes, with its row in implementation.md. The Windows tests
+need an NVIDIA or Intel GPU for the first `scale_d3d11` patch, which is where D3D11 refuses
+the texture arrays, and NVIDIA for the `scale_d3d12` one, where it was found.
 
 ## 3. Bump the outside libraries if needed
 
