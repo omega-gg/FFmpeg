@@ -1,0 +1,17 @@
+--- a/libavfilter/vf_scale_d3d12.c
++++ b/libavfilter/vf_scale_d3d12.c
+@@ -434,6 +434,14 @@
+         int is_10bit = (s->input_format == DXGI_FORMAT_P010);
+         s->input_colorspace = get_dxgi_colorspace(in->colorspace, in->color_trc, is_10bit);
+ 
++        ///< The output keeps the input's color space, and PQ or HLG have no 8-bit form: asked for
++        ///< NV12 in one, the video processor writes nothing. Gamma 2.2 with the same primaries,
++        ///< on both sides, only changes the depth (as scale_d3d11, which sets no color space)
++        if (s->output_format == DXGI_FORMAT_NV12 &&
++            (s->input_colorspace == DXGI_COLOR_SPACE_YCBCR_STUDIO_G2084_LEFT_P2020 ||
++             s->input_colorspace == DXGI_COLOR_SPACE_YCBCR_STUDIO_GHLG_TOPLEFT_P2020))
++            s->input_colorspace = DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P2020;
++
+         s->input_framerate = get_input_framerate(ctx, inlink, in);
+ 
+         av_log(ctx, AV_LOG_VERBOSE, "Input format: %dx%d, DXGI format: %d, colorspace: %d, framerate: %d/%d\n",
